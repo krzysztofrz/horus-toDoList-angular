@@ -1,24 +1,40 @@
-<div class="container">
-  <div class="d-flex my-4">
-    <h1>Lista zadań</h1>
-    <button class="btn btn-primary mx-3">Dodaj zadanie</button>
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0">Lista zadań</h1>
+    <button class="btn btn-primary" type="button">Dodaj zadanie</button>
   </div>
-  <ul class="list-group">
-    @for (task of tasks; track $index) {
-      <li class="list-group-item d-block">
-        <div class="item" [ngClass]="{ 'completed': task.status === 'Completed' }">
-          <input type="checkbox" class="form-check-input me-2" [checked]="task.status === 'Completed'"
-                 (change)="toggleCompleted(task)">
 
-          <b class="text-primary">{{ task.name }}</b>
-          <button class="btn btn-link" (click)="toggleDescription()">pokaż opis</button>
-          <br>
-          {{ task.date }} - <span class="badge bg-info">{{ task.status }}</span>
-          @if (descVisible) {
-            <p>{{ task?.description }}</p>
-          }
+  <div class="list-group" role="list">
+    @for (task of tasks; track $index) {
+    <div class="list-group-item" role="listitem">
+      <div class="d-flex align-items-start justify-content-between gap-3">
+        <div class="d-flex align-items-start gap-2 flex-grow-1">
+          <input type="checkbox" class="form-check-input mt-1" [checked]="task.status === 'Completed'"
+            (change)="toggleCompleted(task)" [attr.aria-label]="'Oznacz zadanie ' + task.name + ' jako ukończone'">
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+              <b class="task-name"
+                [ngClass]="{ 'text-decoration-line-through text-muted': task.status === 'Completed' }">{{ task.name
+                }}</b>
+              <span class="badge" [ngClass]="{
+                  'bg-success': task.status === 'Completed',
+                  'bg-secondary': task.status === 'Planned',
+                  'bg-warning text-dark': task.status === 'Pending'
+                }">{{ task.status }}</span>
+              <span class="text-body-secondary small"><time [attr.datetime]="task.date">{{ task.date }}</time></span>
+            </div>
+
+            @if (task.expanded) {
+            <div class="mb-0 mt-2 text-body" [attr.id]="'desc-' + $index">{{ task?.description }}</div>
+            }
+          </div>
         </div>
-      </li>
+        <button class="btn btn-sm btn-outline-secondary" type="button" (click)="task.expanded = !task.expanded"
+          [attr.aria-expanded]="task.expanded" [attr.aria-controls]="'desc-' + $index">
+          {{ task.expanded ? 'ukryj opis' : 'pokaż opis' }}
+        </button>
+      </div>
+    </div>
     }
-  </ul>
+  </div>
 </div>
