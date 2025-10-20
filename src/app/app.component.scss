@@ -3,6 +3,12 @@ $item-radius: 0.5rem;
 $item-gap: 0.75rem;
 $focus-ring: rgba(13, 110, 253, 0.25);
 
+.filters {
+  .form-label {
+    font-weight: 600;
+  }
+}
+
 .list-group-item {
   border: 1px solid $item-border;
   border-radius: $item-radius;

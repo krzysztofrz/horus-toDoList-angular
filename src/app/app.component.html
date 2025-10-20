@@ -4,13 +4,60 @@
     <button class="btn btn-primary" type="button">Dodaj zadanie</button>
   </div>
 
-  <div class="list-group" role="list">
-    @for (task of tasks; track $index) {
-    <div class="list-group-item" role="listitem">
+  <!-- Filters -->
+  <form class="row g-3 align-items-end mb-2 filters" (submit)="$event.preventDefault()" aria-label="Filtry listy zadań">
+    <div class="col-12 col-sm-6 col-lg-4">
+      <label for="filterName" class="form-label">Nazwa/Opis</label>
+      <input id="filterName" type="text" class="form-control" [(ngModel)]="filters.name" name="filterName"
+        placeholder="Szukaj po nazwie lub opisie" />
+    </div>
+    <div class="col-6 col-lg-3">
+      <label for="filterFrom" class="form-label">Data od</label>
+      <input id="filterFrom" type="date" class="form-control" [(ngModel)]="filters.dateFrom" name="filterFrom" />
+    </div>
+    <div class="col-6 col-lg-3">
+      <label for="filterTo" class="form-label">Data do</label>
+      <input id="filterTo" type="date" class="form-control" [(ngModel)]="filters.dateTo" name="filterTo"
+        [min]="filters.dateFrom || undefined" [class.is-invalid]="isDateRangeInvalid" aria-describedby="dateToHelp" />
+      @if (isDateRangeInvalid) {
+      <div id="dateToHelp" class="invalid-feedback">Data do nie może być wcześniejsza niż data od.</div>
+      }
+    </div>
+    <div class="col-12 col-lg-2">
+      <label for="filterStatus" class="form-label">Status</label>
+      <select id="filterStatus" class="form-select" [(ngModel)]="filters.status" name="filterStatus">
+        <option value="All">All</option>
+        <option value="Planned">Planned</option>
+        <option value="Pending">Pending</option>
+        <option value="Completed">Completed</option>
+      </select>
+    </div>
+    <div class="col-12 col-lg-2 d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()"
+        [disabled]="!filters.name && !filters.dateFrom && !filters.dateTo && filters.status === 'All'">
+        Wyczyść filtry
+      </button>
+    </div>
+  </form>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="text-body-secondary small" aria-live="polite">Wyniki: {{ filteredTasks.length }}</div>
+  </div>
+
+  <ul class="list-group">
+    @if (filteredTasks.length === 0) {
+    <li class="list-group-item">
+      <div class="text-body-secondary">Brak wyników dla wybranych filtrów.</div>
+    </li>
+    }
+    @for (task of filteredTasks; track task.name + task.date) {
+    <li class="list-group-item">
       <div class="d-flex align-items-start justify-content-between gap-3">
         <div class="d-flex align-items-start gap-2 flex-grow-1">
-          <input type="checkbox" class="form-check-input mt-1" [checked]="task.status === 'Completed'"
-            (change)="toggleCompleted(task)" [attr.aria-label]="'Oznacz zadanie ' + task.name + ' jako ukończone'">
+          <input id="task-check-{{$index}}" type="checkbox" class="form-check-input mt-1"
+            [checked]="task.status === 'Completed'" (change)="toggleCompleted(task)">
+          <label class="visually-hidden" [attr.for]="'task-check-' + $index">Oznacz zadanie {{ task.name }} jako
+            ukończone</label>
           <div class="flex-grow-1">
             <div class="d-flex align-items-center flex-wrap gap-2">
               <b class="task-name"
@@ -29,12 +76,14 @@
             }
           </div>
         </div>
+        @if (task.description) {
         <button class="btn btn-sm btn-outline-secondary" type="button" (click)="task.expanded = !task.expanded"
           [attr.aria-expanded]="task.expanded" [attr.aria-controls]="'desc-' + $index">
           {{ task.expanded ? 'ukryj opis' : 'pokaż opis' }}
         </button>
+        }
       </div>
-    </div>
+    </li>
     }
-  </div>
+  </ul>
 </div>
