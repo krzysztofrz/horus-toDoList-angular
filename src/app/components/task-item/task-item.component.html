@@ -1,0 +1,47 @@
+<li class="list-group-item" role="listitem">
+    <div class="d-flex align-items-start justify-content-between gap-3">
+        <div class="d-flex align-items-start gap-2 flex-grow-1">
+            <input [id]="'task-check-' + index" type="checkbox" class="form-check-input mt-1"
+                [checked]="task.status === TaskStatus.Completed" (change)="onToggleCompleted()"
+                [attr.aria-label]="'Oznacz zadanie ' + task.name + ' jako ukończone'">
+
+            <div class="flex-grow-1">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <b class="task-name"
+                        [ngClass]="{ 'text-decoration-line-through text-muted': task.status === TaskStatus.Completed }">
+                        {{ task.name }}
+                    </b>
+                    <span class="badge" [ngClass]="{
+              'bg-success': task.status === TaskStatus.Completed,
+              'bg-secondary': task.status === TaskStatus.Planned,
+              'bg-warning text-dark': task.status === TaskStatus.Pending
+            }">
+                        {{ task.status }}
+                    </span>
+                    <span class="text-body-secondary small">
+                        <time [attr.datetime]="task.date">{{ task.date }}</time>
+                    </span>
+                </div>
+
+                @if (isExpanded) {
+                <div class="mb-0 mt-2 text-body" [attr.id]="'desc-' + index">
+                    {{ task.description }}
+                </div>
+                }
+            </div>
+        </div>
+
+        @if (task.description) {
+        <button class="btn btn-sm btn-outline-secondary" type="button" (click)="onToggleExpanded()"
+            [attr.aria-expanded]="isExpanded" [attr.aria-controls]="'desc-' + index"
+            [attr.aria-label]="(isExpanded ? 'Ukryj' : 'Pokaż') + ' opis zadania ' + task.name">
+            {{ isExpanded ? 'ukryj opis' : 'pokaż opis' }}
+        </button>
+        } @else {
+        <button class="btn btn-sm btn-outline-primary" type="button" (click)="onEditTask()"
+            [attr.aria-label]="'Dodaj opis do zadania ' + task.name">
+            dodaj opis
+        </button>
+        }
+    </div>
+</li>

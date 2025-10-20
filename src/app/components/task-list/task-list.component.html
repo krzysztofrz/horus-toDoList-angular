@@ -1,0 +1,17 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="text-body-secondary small" aria-live="polite" role="status">
+        @if (tasks.length === 0) {
+        Brak wyników dla wybranych filtrów.
+        } @else {
+        Znaleziono {{ tasks.length }} {{ getTaskPluralForm(tasks.length) }}.
+        }
+    </div>
+</div>
+
+<ul class="list-group" role="list" aria-label="Lista zadań">
+    @for (task of tasks; track trackByTask($index, task)) {
+    <app-task-item [task]="task" [index]="$index" (toggleCompleted)="onToggleCompleted($event)"
+        (editTask)="onEditTask($event)">
+    </app-task-item>
+    }
+</ul>

@@ -1,0 +1,12 @@
+/* TASK LIST COMPONENT */
+.text-body-secondary {
+  @media (max-width: 575px) {
+    font-size: 0.875rem;
+  }
+}
+
+.list-group {
+  @media (max-width: 575px) {
+    padding: 0;
+  }
+}

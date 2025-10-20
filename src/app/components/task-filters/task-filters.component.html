@@ -1,0 +1,40 @@
+<form class="row g-3 align-items-end mb-2 filters" (submit)="$event.preventDefault()" aria-label="Filtry listy zadań">
+    <fieldset class="row g-3 align-items-end col-12">
+        <legend class="visually-hidden">Filtry wyszukiwania zadań</legend>
+        <div class="col-12 col-sm-6 col-lg-4">
+            <label for="filterName" class="form-label">Nazwa/Opis</label>
+            <input id="filterName" type="text" class="form-control" [value]="filters().name" name="filterName"
+                placeholder="Szukaj po nazwie lub opisie" (input)="onNameChange($event)" />
+        </div>
+        <div class="col-6 col-lg-3">
+            <label for="filterFrom" class="form-label">Data od</label>
+            <input id="filterFrom" type="date" class="form-control" [value]="filters().dateFrom || ''" name="filterFrom"
+                (change)="onDateFromChange($event)" />
+        </div>
+        <div class="col-6 col-lg-3">
+            <label for="filterTo" class="form-label">Data do</label>
+            <input id="filterTo" type="date" class="form-control" [value]="filters().dateTo || ''" name="filterTo"
+                [min]="filters().dateFrom || undefined" [class.is-invalid]="isDateRangeInvalid()"
+                aria-describedby="dateToHelp" (change)="onDateToChange($event)" />
+            @if (isDateRangeInvalid()) {
+            <div id="dateToHelp" class="invalid-feedback">Data do nie może być wcześniejsza niż data od.</div>
+            }
+        </div>
+        <div class="col-12 col-lg-2">
+            <label for="filterStatus" class="form-label">Status</label>
+            <select id="filterStatus" class="form-select" [value]="filters().status" name="filterStatus"
+                (change)="onStatusChange($event)">
+                <option value="All">All</option>
+                <option value="Planned">Planned</option>
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+        <div class="col-12 col-lg-2 d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary w-100" (click)="onClearFilters()"
+                [disabled]="!hasActiveFilters" aria-label="Wyczyść wszystkie filtry">
+                Wyczyść filtry
+            </button>
+        </div>
+    </fieldset>
+</form>

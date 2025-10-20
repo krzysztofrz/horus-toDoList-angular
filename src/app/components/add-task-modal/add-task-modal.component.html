@@ -1,0 +1,57 @@
+@if (isOpen) {
+<div class="modal-backdrop" (click)="onClose()"></div>
+<div class="modal d-block" role="dialog" aria-modal="true" aria-labelledby="addTaskTitle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="addTaskTitle">Dodaj zadanie</h2>
+                <button type="button" class="btn-close" aria-label="Zamknij" (click)="onClose()"></button>
+            </div>
+            <form (submit)="$event.preventDefault(); onSubmit()" novalidate>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="taskName" class="form-label">Nazwa</label>
+                        <input id="taskName" type="text" class="form-control" [(ngModel)]="formData.name"
+                            name="taskName" required [class.is-invalid]="isNameInvalid"
+                            placeholder="Wpisz nazwę zadania"
+                            [attr.aria-describedby]="isNameInvalid ? 'taskNameError' : null" />
+                        @if (isNameInvalid) {
+                        <div id="taskNameError" class="invalid-feedback">Nazwa jest wymagana.</div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="taskDate" class="form-label">Data</label>
+                        <input id="taskDate" type="date" class="form-control" [(ngModel)]="formData.date"
+                            name="taskDate" required [min]="todayISO" [class.is-invalid]="isDateInvalid"
+                            [attr.aria-describedby]="isDateInvalid ? 'taskDateError' : null" />
+                        @if (isDateInvalid) {
+                        <div id="taskDateError" class="invalid-feedback">Data jest wymagana i nie może być przeszła.
+                        </div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="taskStatus" class="form-label">Status</label>
+                        <select id="taskStatus" class="form-select" [(ngModel)]="formData.status" name="taskStatus">
+                            <option [ngValue]="TaskStatus.Planned">Planned</option>
+                            <option [ngValue]="TaskStatus.Pending">Pending</option>
+                            <option [ngValue]="TaskStatus.Completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-0">
+                        <label for="taskDesc" class="form-label">Opis (opcjonalnie)</label>
+                        <textarea id="taskDesc" rows="3" class="form-control" [(ngModel)]="formData.description"
+                            name="taskDesc" placeholder="Krótki opis"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" (click)="onClose()">Anuluj</button>
+                    <button type="submit" class="btn btn-primary">Zapisz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+}
