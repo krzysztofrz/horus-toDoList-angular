@@ -1,57 +1,61 @@
 <div class="container py-4">
   <div class="d-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0">Lista zadań</h1>
-    <button class="btn btn-primary" type="button">Dodaj zadanie</button>
+    <button class="btn btn-primary" type="button" (click)="openAddModal()">Dodaj zadanie</button>
   </div>
 
   <!-- Filters -->
   <form class="row g-3 align-items-end mb-2 filters" (submit)="$event.preventDefault()" aria-label="Filtry listy zadań">
-    <div class="col-12 col-sm-6 col-lg-4">
-      <label for="filterName" class="form-label">Nazwa/Opis</label>
-      <input id="filterName" type="text" class="form-control" [(ngModel)]="filters.name" name="filterName"
-        placeholder="Szukaj po nazwie lub opisie" />
-    </div>
-    <div class="col-6 col-lg-3">
-      <label for="filterFrom" class="form-label">Data od</label>
-      <input id="filterFrom" type="date" class="form-control" [(ngModel)]="filters.dateFrom" name="filterFrom" />
-    </div>
-    <div class="col-6 col-lg-3">
-      <label for="filterTo" class="form-label">Data do</label>
-      <input id="filterTo" type="date" class="form-control" [(ngModel)]="filters.dateTo" name="filterTo"
-        [min]="filters.dateFrom || undefined" [class.is-invalid]="isDateRangeInvalid" aria-describedby="dateToHelp" />
-      @if (isDateRangeInvalid) {
-      <div id="dateToHelp" class="invalid-feedback">Data do nie może być wcześniejsza niż data od.</div>
-      }
-    </div>
-    <div class="col-12 col-lg-2">
-      <label for="filterStatus" class="form-label">Status</label>
-      <select id="filterStatus" class="form-select" [(ngModel)]="filters.status" name="filterStatus">
-        <option value="All">All</option>
-        <option value="Planned">Planned</option>
-        <option value="Pending">Pending</option>
-        <option value="Completed">Completed</option>
-      </select>
-    </div>
-    <div class="col-12 col-lg-2 d-flex gap-2">
-      <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()"
-        [disabled]="!filters.name && !filters.dateFrom && !filters.dateTo && filters.status === 'All'">
-        Wyczyść filtry
-      </button>
-    </div>
+    <fieldset class="row g-3 align-items-end col-12">
+      <legend class="visually-hidden">Filtry wyszukiwania zadań</legend>
+      <div class="col-12 col-sm-6 col-lg-4">
+        <label for="filterName" class="form-label">Nazwa/Opis</label>
+        <input id="filterName" type="text" class="form-control" [(ngModel)]="filters.name" name="filterName"
+          placeholder="Szukaj po nazwie lub opisie" />
+      </div>
+      <div class="col-6 col-lg-3">
+        <label for="filterFrom" class="form-label">Data od</label>
+        <input id="filterFrom" type="date" class="form-control" [(ngModel)]="filters.dateFrom" name="filterFrom" />
+      </div>
+      <div class="col-6 col-lg-3">
+        <label for="filterTo" class="form-label">Data do</label>
+        <input id="filterTo" type="date" class="form-control" [(ngModel)]="filters.dateTo" name="filterTo"
+          [min]="filters.dateFrom || undefined" [class.is-invalid]="isDateRangeInvalid" aria-describedby="dateToHelp" />
+        @if (isDateRangeInvalid) {
+        <div id="dateToHelp" class="invalid-feedback">Data do nie może być wcześniejsza niż data od.</div>
+        }
+      </div>
+      <div class="col-12 col-lg-2">
+        <label for="filterStatus" class="form-label">Status</label>
+        <select id="filterStatus" class="form-select" [(ngModel)]="filters.status" name="filterStatus">
+          <option value="All">All</option>
+          <option value="Planned">Planned</option>
+          <option value="Pending">Pending</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+      <div class="col-12 col-lg-2 d-flex gap-2">
+        <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()"
+          [disabled]="!filters.name && !filters.dateFrom && !filters.dateTo && filters.status === 'All'">
+          Wyczyść filtry
+        </button>
+      </div>
+    </fieldset>
   </form>
 
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <div class="text-body-secondary small" aria-live="polite">Wyniki: {{ filteredTasks.length }}</div>
+    <div class="text-body-secondary small" aria-live="polite" role="status">
+      @if (filteredTasks.length === 0) {
+      Brak wyników dla wybranych filtrów.
+      } @else {
+      Znaleziono {{ filteredTasks.length }} {{ getTaskPluralForm(filteredTasks.length) }}.
+      }
+    </div>
   </div>
 
-  <ul class="list-group">
-    @if (filteredTasks.length === 0) {
-    <li class="list-group-item">
-      <div class="text-body-secondary">Brak wyników dla wybranych filtrów.</div>
-    </li>
-    }
+  <ul class="list-group" role="list" aria-label="Lista zadań">
     @for (task of filteredTasks; track task.name + task.date) {
-    <li class="list-group-item">
+    <li class="list-group-item" role="listitem">
       <div class="d-flex align-items-start justify-content-between gap-3">
         <div class="d-flex align-items-start gap-2 flex-grow-1">
           <input id="task-check-{{$index}}" type="checkbox" class="form-check-input mt-1"
@@ -81,9 +85,128 @@
           [attr.aria-expanded]="task.expanded" [attr.aria-controls]="'desc-' + $index">
           {{ task.expanded ? 'ukryj opis' : 'pokaż opis' }}
         </button>
+        } @else {
+        <button class="btn btn-sm btn-outline-primary" type="button" (click)="openEditModal(task)">
+          dodaj opis
+        </button>
         }
       </div>
     </li>
     }
   </ul>
+
+  <!-- Add Task Modal -->
+  @if (isAddModalOpen) {
+  <div class="modal-backdrop" (click)="closeAddModal()"></div>
+  <div class="modal d-block" role="dialog" aria-modal="true" aria-labelledby="addTaskTitle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="addTaskTitle">Dodaj zadanie</h2>
+          <button type="button" class="btn-close" aria-label="Zamknij" (click)="closeAddModal()"></button>
+        </div>
+        <form (submit)="$event.preventDefault(); submitNewTask()" novalidate>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="taskName" class="form-label">Nazwa</label>
+              <input id="taskName" type="text" class="form-control" [(ngModel)]="newTask.name" name="taskName" required
+                [class.is-invalid]="isNewTaskNameInvalid" placeholder="Wpisz nazwę zadania"
+                [attr.aria-describedby]="isNewTaskNameInvalid ? 'taskNameError' : null" />
+              @if (isNewTaskNameInvalid) {
+              <div id="taskNameError" class="invalid-feedback">Nazwa jest wymagana.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="taskDate" class="form-label">Data</label>
+              <input id="taskDate" type="date" class="form-control" [(ngModel)]="newTask.date" name="taskDate" required
+                [min]="todayISO" [class.is-invalid]="isNewTaskDateInvalid"
+                [attr.aria-describedby]="isNewTaskDateInvalid ? 'taskDateError' : null" />
+              @if (isNewTaskDateInvalid) {
+              <div id="taskDateError" class="invalid-feedback">Data jest wymagana i nie może być przeszła.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="taskStatus" class="form-label">Status</label>
+              <select id="taskStatus" class="form-select" [(ngModel)]="newTask.status" name="taskStatus">
+                <option [ngValue]="TaskStatus.Planned">Planned</option>
+                <option [ngValue]="TaskStatus.Pending">Pending</option>
+                <option [ngValue]="TaskStatus.Completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="mb-0">
+              <label for="taskDesc" class="form-label">Opis (opcjonalnie)</label>
+              <textarea id="taskDesc" rows="3" class="form-control" [(ngModel)]="newTask.description" name="taskDesc"
+                placeholder="Krótki opis"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="closeAddModal()">Anuluj</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!canSubmitNewTask">Zapisz</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Edit Task Modal -->
+  @if (isEditModalOpen) {
+  <div class="modal-backdrop" (click)="closeEditModal()"></div>
+  <div class="modal d-block" role="dialog" aria-modal="true" aria-labelledby="editTaskTitle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="editTaskTitle">Edytuj zadanie</h2>
+          <button type="button" class="btn-close" aria-label="Zamknij" (click)="closeEditModal()"></button>
+        </div>
+        <form (submit)="$event.preventDefault(); submitEditTask()" novalidate>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="editTaskName" class="form-label">Nazwa</label>
+              <input id="editTaskName" type="text" class="form-control" [(ngModel)]="editTaskForm.name"
+                name="editTaskName" required [class.is-invalid]="isEditTaskNameInvalid"
+                placeholder="Wpisz nazwę zadania"
+                [attr.aria-describedby]="isEditTaskNameInvalid ? 'editTaskNameError' : null" />
+              @if (isEditTaskNameInvalid) {
+              <div id="editTaskNameError" class="invalid-feedback">Nazwa jest wymagana.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="editTaskDate" class="form-label">Data</label>
+              <input id="editTaskDate" type="date" class="form-control" [(ngModel)]="editTaskForm.date"
+                name="editTaskDate" required [min]="todayISO" [class.is-invalid]="isEditTaskDateInvalid"
+                [attr.aria-describedby]="isEditTaskDateInvalid ? 'editTaskDateError' : null" />
+              @if (isEditTaskDateInvalid) {
+              <div id="editTaskDateError" class="invalid-feedback">Data jest wymagana i nie może być przeszła.</div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="editTaskStatus" class="form-label">Status</label>
+              <select id="editTaskStatus" class="form-select" [(ngModel)]="editTaskForm.status" name="editTaskStatus">
+                <option [ngValue]="TaskStatus.Planned">Planned</option>
+                <option [ngValue]="TaskStatus.Pending">Pending</option>
+                <option [ngValue]="TaskStatus.Completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="mb-0">
+              <label for="editTaskDesc" class="form-label">Opis</label>
+              <textarea id="editTaskDesc" rows="3" class="form-control" [(ngModel)]="editTaskForm.description"
+                name="editTaskDesc" placeholder="Krótki opis"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="closeEditModal()">Anuluj</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!canSubmitEditTask">Zapisz</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  }
 </div>
